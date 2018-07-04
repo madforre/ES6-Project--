@@ -1,3 +1,12 @@
+// 만약 또 다른 뷰가 있다면??
+// 내 찜 목록이 아닌 또 다른 목록이 있다?
+// 코드들을 별도의 클래스나 메소드로 분류하고
+// 추가를 한다던지 모듈화를 시켜서 유용하게 쓰도록 하자.
+// 지금은 하나의 클래스에 모든 코드가 다 있다.
+// 별도의 클래스로 분리하지 않는 이상은
+// 다시 작성해야 한다.
+// 부품화 시키는 것이 좋다.
+
 class Blog {
     constructor() {
         console.log('Blog is started!');
@@ -37,25 +46,51 @@ class Blog {
             
             // ClassName이 like라면 내 찜 목록에 새로운 
             // 블로그 제목을 추가한다.
-            if(targetClassName !== "like") return; // not like->종료            
+
+            // like나 unlike 아니면 종료
+            if(targetClassName !== "like" && targetClassName !=="unlike") return; 
+
             const postTitle = target.previousElementSibling.textContent;
-            // 찜 목록에 추가.
-            this.likedSet.add(postTitle); // set통해 중복 되지 않게 찜 선택
-            this.likedSet.forEach( (v) => {
+
+            // 로직?
+            // 찜 취소를 클릭한 경우에, 찜하기로 다시 변경하고, 
+            // 찜 목록을 제거하고, 찜목록뷰를 랜더링한다.
+
+            if(targetClassName === "unlike") {
+
+                // 텍스트를 자바스크립트 코드안에 넣지 않고
+                // 나중에는 오브젝트 형태로 빼서 분리해주자.
+                // 자바스크립트 안에 클래스나 이름 들어있으면
+                // 안좋은 코드이다.
+                target.className = "like";
+                target.innerText = "찜하기";
+
+                this.likedSet.delete(postTitle);
+            } else {
+                // 찜 목록에 추가.
+                this.likedSet.add(postTitle); // set통해 중복 되지 않게 찜 선택
+                this.likedSet.forEach( (v) => {
                 console.log('set data is', v);
-            })
-            // 내 찜 목록 뷰에 추가.
+                })
+
+                // 찜 된 목록(div)의 클래스를 like에서 unlike로 변경하기.
+                target.className = "unlike";
+                target.textContent = "찜취소";
+
+            }        
+
+            // 내 찜 목록을 뷰에 추가. (랜더링)
             this.updateLikedList();
         });
     }
 
     updateLikedList() {
         const ul = document.querySelector(".like-list > ul");
-        let likedSum = "";
+        let likedSum = ""; // 변경이 될 수 있는 변수이므로 let
 
         // li 태그에 찜 리스트를 넣고 한번의 innerHTML을 사용한다.
-        this.likedSet.forEach( (v) => {
-            likedSum += `<li> ${v} </li>`;
+        this.likedSet.forEach( (value) => {
+            likedSum += `<li> ${value} </li>`;
         })
         ul.innerHTML = likedSum;
     }
